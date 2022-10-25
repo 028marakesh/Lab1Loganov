@@ -3,14 +3,18 @@
 #include <string>
 #include <stdlib.h>
 #include <fstream>
+#include <cstdlib>
 using namespace std;
+
+bool pipeExist = false;
+bool ksExist = false;
 
 
 
 struct Pipe
 {
     int length=0 , diameter=0;
-    int repair =0;
+    bool repair;
 };
 struct KS
 {
@@ -22,87 +26,102 @@ struct KS
 
 
 
-int Number(int a)
+int Number()
 {
+    int a;
     while (!(cin >> a))
     {
-        cout << "Введите число: ";
-        cin.clear();
-        cin.ignore(cin.rdbuf()->in_avail());
+  
+            cout << "Введите число: ";
+            cin.clear();
+            cin.ignore(cin.rdbuf()->in_avail());
+        
+
+
+       
     }
-    return abs(a);
+        return a;
+    
+    
 }
 void InputPipe(Pipe &p) {
-    
-    int i=0;
     cout << "\nВведите длину трубы: ";
-    p.length = Number(i);
+    p.length = Number();
     cout << "\nВведите диаметр трубы: ";
-    p.diameter = Number(i);
-
+    p.diameter = Number();
+    int i;
     do {
-        cout << "\nСостояние трубы\n1. В ремонте\n2. Не в ремонте\n";
-        p.repair = Number(i);
-    } while (p.repair > 2 || p.repair <= 0);
+        cout << "\nСостояние трубы\nВ ремонте (1)\nНе в ремонте(0)\n";
+        i= Number();
+        if (i == 1 || i == 0) {
+            p.repair = i;
+            break;
+        }
+    } while (true);
+    pipeExist = true;
     
     
 }
 
 void InputKS(KS &q) {
-    
-    int i = 0;
     cout << "\nВведите имя КС: ";
-    cin >> q.name;
+    getline(cin>>ws, q.name);
     cout << "\nКоличество цехов: ";
-    q.AmountAll = Number(i);
+    q.AmountAll = Number();
     do {
         cout << "\nЦехов в работе: ";
-        q.AmountWork = Number(i);
-    } while (q.AmountAll <= q.AmountWork);
+        q.AmountWork = Number();
+    } while (q.AmountAll < q.AmountWork);
     cout << "\nВведите эффективность: ";
-    q.Effect = Number(i);
+    q.Effect = Number();
+    ksExist = true;
    
 }
 
-void CheckAll(Pipe &p, KS &k) {
-   
-    std::cout << "\nДлина трубы: " << p.length;
-    std::cout << "\nДиаметр трубы: " << p.diameter;
-    if (p.repair == 1) {
-        std::cout << "\nСостояние трубы: в ремонте";
+void PrintAll(Pipe &p, KS &k) {
+    if (pipeExist==true) {
+        std::cout << "\nДлина трубы: " << p.length;
+        std::cout << "\nДиаметр трубы: " << p.diameter;
+        if (p.repair == 1) {
+            std::cout << "\nСостояние трубы: в ремонте";
+        }
+        else if (p.repair == 0) {
+            std::cout << "\nСостояние трубы: не в ремонте";
+        }
     }
-    else if (p.repair == 2) {
-        std::cout << "\nСостояние трубы: не в ремонте";
+    if (ksExist==true) {
+        std::cout << "\nИмя КС: " << k.name;
+        std::cout << "\nКоличество цехов: " << k.AmountAll;
+        std::cout << "\nЦехов в работе: " << k.AmountWork;
+        std::cout << "\nЭффективность: " << k.Effect;
     }
     
-    std::cout << "\nИмя КС: " << k.name;
-    std::cout << "\nКоличество цехов: " << k.AmountAll;
-    std::cout << "\nЦехов в работе: " << k.AmountWork;
-    std::cout << "\nЭффективность: " << k.Effect;
+    
+    
 
 }
 
 void RedactPipe(Pipe &p) {
-    int i = 0;
+    
     if (p.repair == 1) {
         std::cout << "\nСостояние трубы: в ремонте";
     }
-    else if (p.repair == 2) {
+    else if (p.repair == 0) {
         std::cout << "\nСостояние трубы: не в ремонте";
     }
     do {
-    std::cout << "\nНа что меняем?\n1. В ремонте\n2. Не в ремонте\n";
-    p.repair = Number(i);
-    } while (p.repair > 2 || p.repair <= 0);
+    std::cout << "\nНа что меняем?\nВ ремонте (1)\nНе в ремонте (0)\n";
+    p.repair = Number();
+    } while (p.repair == 1 || p.repair == 0);
 }
 
 void RedactKS(KS& k) {
-    int i = 0;
+    
     int choice;
     std::cout << "\nЦехов в работе: " << k.AmountWork << " из " << k.AmountAll;
     do {
         std::cout << "\nВыбери действие?\n1. Запустить цех\n2. Остановить цех\n";
-        choice = Number(i);
+        choice = Number();
     } while (choice > 2 || choice <= 0);
     if (choice == 1 && k.AmountAll > k.AmountWork) {
         k.AmountWork += 1;
@@ -124,43 +143,64 @@ void RedactKS(KS& k) {
 
 void FileCheck1(Pipe& p) {
     if (p.length == 0 || p.diameter == 0 || (p.repair>2 || p.repair<1)) {
-        std::cout << "\n!!!Данные трубы из файла записаны некорректно\n Исправьте данные в файле или создайте трубу через консоль";
+        std::cout << "\n!!!Данные трубы не существуют или записаны некорректно";
     }
 
 }
 
 void FileCheck2(KS& k) {
     if (k.name == "unnamed" || k.AmountAll < k.AmountWork) {
-        std::cout << "\n!!!Данные КС из файла записаны некорректно\n Исправьте данные в файле или создайте КС через консоль";
+        std::cout << "\n!!!Данные КС не существуют или записаны некорректно";
     }
 
 }
 
 void Input(Pipe& p, KS& k) {
+
     int i = 0;
-    ifstream fin("input.txt");
-    fin >> p.length>> p.diameter>> p.repair;
+    ifstream fin;
+    fin.open("save.txt");
+    string tmp;
+    fin.ignore(255, '\n');
+    fin >> p.length;
+    fin >> p.diameter;
+    fin >> p.repair;
+    if (p.repair == 1 || p.repair == 0) {
+        std::cout << "\n!!!В файле неверные данные о ремонте!\n";
+    } 
     FileCheck1(p);
-    fin >> k.name >> k.AmountAll >> k.AmountWork >> k.Effect;
+    for (int i = 1; i <= 5; i++) 
+        fin.ignore(255, '\n');
+    fin >> k.name;
+    fin >> k.AmountAll;
+    fin >> k.AmountWork;
+    fin >> k.Effect;
     FileCheck2(k);
     std::cout << "\nДанные из файла записаны\n";
     fin.close();
 }
 
 void Output(Pipe& p, KS& k) {
-    ofstream fout("output.txt");
-    fout << "\nДлина трубы: " << p.length;
-    fout << "\nДиаметр трубы: " << p.diameter;
-    if (p.repair == 1) {
-        fout << "\nСостояние трубы: в ремонте";
+    ofstream fout("save.txt");
+
+    if (pipeExist==true) {
+        fout << "Труба:\n";
+        fout << p.length<<"\n";
+        fout << p.diameter << "\n";
+        fout << p.repair << "\n";
     }
-    else if (p.repair == 2) {
-        fout << "\nСостояние трубы: не в ремонте";
+    if (ksExist==true) {
+        fout << "\n";
+        fout << "\n";
+        fout << "\n";
+        fout << "\n";
+        fout << "КС:" << "\n";
+        fout << k.name << "\n";
+        fout << k.AmountAll << "\n";
+        fout << k.AmountWork << "\n";
+        fout << k.Effect << "\n";
     }
-    fout << "\nИмя КС: " << k.name;
-    fout << "\nКоличество цехов: " << k.AmountAll;
-    fout << "\nЦехов в работе: " << k.AmountWork;
-    fout << "\nЭффективность: " << k.Effect;
+   
     std::cout << "\nФайл записан\n";
     fout.close();
 }
@@ -173,9 +213,9 @@ int menu(int choice) {
     std::cout << "5. Редактировать КС\n";
     std::cout << "6. Ввод с файла\n";
     std::cout << "7. Сохранение в файл\n";
-    std::cout << "8. Выход\n";
+    std::cout << "0. Выход\n";
     cout << "Что ты хочешь сделать? ";
-    choice = Number(choice);
+    choice = Number();
     return choice;
 }
 
@@ -183,37 +223,47 @@ int main()
 {
     setlocale(LC_ALL, "RUS");
     int choice = 0;
-    int count = 0;
     Pipe p;
     KS k;
     while (true)
     {
-        count = menu(choice);
-        if (count == 1) {
+        switch (menu(choice)) {
+        case 1:
             InputPipe(p);
-        }
-        else if (count == 2) {
+            break;
+        case 2:
             InputKS(k);
-        }
-        else if (count == 3) {
-            CheckAll(p,k);
-        }
-        else if (count == 4) {
-            RedactPipe(p);
-        }
-        else if (count == 5) {
-            RedactKS(k);
-        }
-        else if (count == 6) {
-            Input(p,k);
-        }
-        else if (count == 7) {
-            Output(p,k);
-        }
-        else if (count == 8) {
+            break;
+        case 3:
+            PrintAll(p, k);
+            break;
+        case 4:
+            if (pipeExist == true) {
+                RedactPipe(p);
+            }
+            else {
+                cout << "Сначала создайте трубу!";
+            }
+            
+            break;
+        case 5:
+            if (ksExist == true) {
+                RedactPipe(p);
+            }
+            else {
+                cout << "Сначала создайте КС!";
+            }
+            break;
+        case 6:
+            Input(p, k);
+            break;
+        case 7:
+            Output(p, k);
+            break;
+        case 0:
             exit(0);
+            break;
         }
-
     }
 
 
